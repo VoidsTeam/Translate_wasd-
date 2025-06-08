@@ -16,6 +16,7 @@ root = tk.Tk()
 root.title("Переводчик wasd=цфыв")
 mapping = load_mapping()
 
+
 THEMES = {
     "light": {
         "bg": "#f0f0f0",
@@ -97,6 +98,31 @@ input_text = tk.Text(frame, width=50, height=5)
 input_text.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
 
 input_text.bind("<KeyRelease>", on_input_change)
+
+# Поддержка вставки текста при русской раскладке
+def paste_event(event=None):
+    try:
+        input_text.event_generate("<<Paste>>")
+    except Exception:
+        pass
+    return "break"
+
+input_text.bind("<Control-v>", paste_event)
+input_text.bind("<Control-V>", paste_event)
+input_text.bind("<Shift-Insert>", paste_event)
+input_text.bind("<Control-Insert>", paste_event)
+
+def ctrl_key_paste(event):
+    # Вставка для любых Ctrl+Key (например, Ctrl+М на русской)
+    if event.state & 0x4:  # Control
+        # Проверяем, что это Ctrl+V (латиница) или Ctrl+М (русская)
+        if (hasattr(event, "char") and event.char and event.char.lower() == "v") or \
+           (hasattr(event, "keysym") and event.keysym.lower() == "v") or \
+           (hasattr(event, "keycode") and event.keycode == 86):
+            return paste_event()
+    return
+
+input_text.bind("<Control-Key>", ctrl_key_paste)
 
 tk.Label(frame, text="Результат:").pack(anchor='w')
 output_text = tk.Text(frame, width=50, height=5, state='disabled')
