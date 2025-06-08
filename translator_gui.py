@@ -99,7 +99,6 @@ input_text.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
 
 input_text.bind("<KeyRelease>", on_input_change)
 
-# Поддержка вставки текста при русской раскладке
 def paste_event(event=None):
     try:
         input_text.event_generate("<<Paste>>")
@@ -113,9 +112,7 @@ input_text.bind("<Shift-Insert>", paste_event)
 input_text.bind("<Control-Insert>", paste_event)
 
 def ctrl_key_paste(event):
-    # Вставка для любых Ctrl+Key (например, Ctrl+М на русской)
-    if event.state & 0x4:  # Control
-        # Проверяем, что это Ctrl+V (латиница) или Ctrl+М (русская)
+    if event.state & 0x4:
         if (hasattr(event, "char") and event.char and event.char.lower() == "v") or \
            (hasattr(event, "keysym") and event.keysym.lower() == "v") or \
            (hasattr(event, "keycode") and event.keycode == 86):
