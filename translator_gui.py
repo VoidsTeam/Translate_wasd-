@@ -111,19 +111,54 @@ input_text.bind("<Control-V>", paste_event)
 input_text.bind("<Shift-Insert>", paste_event)
 input_text.bind("<Control-Insert>", paste_event)
 
-def ctrl_key_paste(event):
+def copy_event(event=None):
+    try:
+        widget = event.widget
+        if widget.tag_ranges("sel"):
+            widget.event_generate("<<Copy>>")
+    except Exception:
+        pass
+    return "break"
+
+def select_all_event(event=None):
+    try:
+        widget = event.widget
+        widget.tag_add("sel", "1.0", "end-1c")
+        return "break"
+    except Exception:
+        pass
+    return "break"
+
+def ctrl_key_handler(event):
     if event.state & 0x4:
         if (hasattr(event, "char") and event.char and event.char.lower() == "v") or \
            (hasattr(event, "keysym") and event.keysym.lower() == "v") or \
            (hasattr(event, "keycode") and event.keycode == 86):
             return paste_event()
+        elif (hasattr(event, "char") and event.char and event.char.lower() == "c") or \
+             (hasattr(event, "keysym") and event.keysym.lower() == "c") or \
+             (hasattr(event, "keycode") and event.keycode == 67):
+            return copy_event()
+        elif (hasattr(event, "char") and event.char and event.char.lower() == "a") or \
+             (hasattr(event, "keysym") and event.keysym.lower() == "a") or \
+             (hasattr(event, "keycode") and event.keycode == 65):
+            return select_all_event(event)
     return
 
-input_text.bind("<Control-Key>", ctrl_key_paste)
-
+input_text.bind("<Control-Key>", ctrl_key_handler)
+input_text.bind("<Control-c>", copy_event)
+input_text.bind("<Control-C>", copy_event)
 tk.Label(frame, text="Результат:").pack(anchor='w')
 output_text = tk.Text(frame, width=50, height=5, state='disabled')
 output_text.pack(fill=tk.BOTH, expand=True)
+
+output_text.bind("<Control-Key>", ctrl_key_handler)
+output_text.bind("<Control-c>", copy_event)
+output_text.bind("<Control-C>", copy_event)
+output_text.bind("<Control-a>", select_all_event)
+output_text.bind("<Control-A>", select_all_event)
+input_text.bind("<Control-a>", select_all_event)
+input_text.bind("<Control-A>", select_all_event)
 
 apply_theme(current_theme)
 
